@@ -1,0 +1,7 @@
+{
+  "name": "secret-general-store",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.js"
+  }
+}
