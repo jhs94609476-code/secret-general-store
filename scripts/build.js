@@ -11,7 +11,8 @@ const { parseCSV } = require('./csv');
 const ROOT = path.resolve(__dirname, '..');
 const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vStAETGqwhy2ux_FQAzPeS_bPUu_pIk_F7n79vO7LKCgAZ1KYHnqJ37WX5c2Higqtzx8gG6HBq7zouS/pub?gid=1254534939&single=true&output=csv';
 const CACHE = path.join(ROOT, 'data', 'sheet.csv');
-const REL = 'sponsored nofollow noopener noreferrer';
+const REL = 'sponsored nofollow noopener';
+const SITE_URL = (process.env.SITE_URL || 'https://secret-general-store.vercel.app').replace(/\/+$/, '');
 
 const CATEGORIES = [
   { slug: 'cosmetics-beauty', name: '화장품/미용', en: 'Cosmetics &amp; Beauty', desc: '피부 장벽, 보습, 노화 케어까지 성분과 사용감을 꼼꼼히 기록한 화장품/미용 아이템을 소개합니다.' },
@@ -120,7 +121,6 @@ function categoryCard(p, i) {
   return `<article class="group bg-surface-card rounded-xl border border-border-subtle p-4 sm:p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col md:flex-row gap-4 sm:gap-6 items-stretch">
 <div class="w-full md:w-[230px] h-[200px] sm:h-[260px] md:h-[220px] rounded-lg overflow-hidden bg-surface-container shrink-0 relative">
 <img ${IMG_ATTR} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="${esc(p.title)}" src="${esc(p.image)}"/>
-<span class="absolute top-3 left-3 px-2 py-0.5 bg-surface-card/90 backdrop-blur-sm text-ink-primary text-label-sm font-label-sm rounded border border-border-subtle">No. ${String(i + 1).padStart(2, '0')}</span>
 </div>
 <div class="flex flex-col justify-between flex-1 min-w-0">
 <div>
@@ -200,6 +200,42 @@ function fill(tpl, map, name) {
   return out;
 }
 
+// ---------- 검색 (클라이언트 JS, 포스트 데이터 인라인) ----------
+function searchSnippet(posts, root) {
+  const data = posts.map(p => ({ t: p.title, c: p.cat.name, u: `${root}posts/${p.slug}.html`, k: (p.title + ' ' + p.cat.name + ' ' + p.excerpt).toLowerCase() }));
+  const json = JSON.stringify(data).replace(/</g, '\\u003c');
+  const js = `(function(){var D=${json};var box=document.createElement('div');box.setAttribute('role','listbox');box.id='site-search-results';box.style.cssText='position:fixed;z-index:9999;display:none;max-height:360px;overflow-y:auto;background:#fff;border:1px solid #EAEAEA;border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.12);padding:6px;font-family:"Noto Sans KR",sans-serif';document.body.appendChild(box);var cur=null;
+function esc(s){return s.replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function pos(i){var r=i.getBoundingClientRect();box.style.left=r.left+'px';box.style.top=(r.bottom+6)+'px';box.style.width=Math.max(r.width,320)+'px'}
+function render(i){var q=i.value.trim().toLowerCase();if(!q){box.style.display='none';return}var w=q.split(/\\s+/);var m=D.filter(function(p){return w.every(function(x){return p.k.indexOf(x)>-1})}).slice(0,8);pos(i);cur=i;box.innerHTML=m.length?m.map(function(p){return '<a href="'+p.u+'" role="option" style="display:block;padding:10px 12px;border-radius:8px;text-decoration:none;color:#1A1A1A" onmouseover="this.style.background=\\'#F4EDE4\\'" onmouseout="this.style.background=\\'transparent\\'"><span style="display:block;font-size:11px;color:#888">'+esc(p.c)+'</span><span style="display:block;font-size:14px;font-weight:500;line-height:1.4">'+esc(p.t)+'</span></a>'}).join(''):'<div style="padding:12px;font-size:13px;color:#888">검색 결과가 없습니다.</div>';box.style.display='block'}
+var ins=document.querySelectorAll('[data-site-search]');for(var n=0;n<ins.length;n++){(function(i){i.addEventListener('input',function(){render(i)});i.addEventListener('focus',function(){render(i)});i.addEventListener('keydown',function(e){if(e.key==='Escape'){box.style.display='none'}else if(e.key==='Enter'){var a=box.querySelector('a');if(a){e.preventDefault();location.href=a.getAttribute('href')}}})})(ins[n])}
+document.addEventListener('click',function(e){if(!box.contains(e.target)&&!e.target.hasAttribute('data-site-search'))box.style.display='none'});
+window.addEventListener('resize',function(){if(cur&&box.style.display!=='none')pos(cur)});window.addEventListener('scroll',function(){if(cur&&box.style.display!=='none')pos(cur)},{passive:true});})();`;
+  return `<script>${js}</script>`;
+}
+
+// ---------- SEO 파일 ----------
+const xmlEsc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+function generateSitemap(posts) {
+  const today = new Date().toISOString().slice(0, 10);
+  const urls = [`${SITE_URL}/`, ...CATEGORIES.map(c => `${SITE_URL}/category/${c.slug}.html`), ...posts.map(p => `${SITE_URL}/posts/${p.slug}.html`)];
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+    urls.map(u => `  <url><loc>${xmlEsc(u)}</loc><lastmod>${today}</lastmod></url>`).join('\n') + '\n</urlset>\n';
+  fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), xml, 'utf8');
+}
+
+function generateRss(posts) {
+  const now = new Date().toUTCString();
+  const items = posts.map(p => `    <item>\n      <title>${xmlEsc(p.title)}</title>\n      <link>${SITE_URL}/posts/${p.slug}.html</link>\n      <guid isPermaLink="true">${SITE_URL}/posts/${p.slug}.html</guid>\n      <category>${xmlEsc(p.cat.name)}</category>\n      <description>${xmlEsc(p.desc)}</description>\n      <pubDate>${now}</pubDate>\n    </item>`).join('\n');
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0">\n  <channel>\n    <title>비밀 잡화점 | The Secret Sundries</title>\n    <link>${SITE_URL}/</link>\n    <description>일상의 불편을 해결하는 도구를 기록하는 비밀 잡화점</description>\n    <language>ko-KR</language>\n    <lastBuildDate>${now}</lastBuildDate>\n${items}\n  </channel>\n</rss>\n`;
+  fs.writeFileSync(path.join(ROOT, 'rss.xml'), xml, 'utf8');
+}
+
+function generateRobots() {
+  fs.writeFileSync(path.join(ROOT, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`, 'utf8');
+}
+
 function emptyDir(dir) {
   fs.mkdirSync(dir, { recursive: true });
   for (const f of fs.readdirSync(dir)) if (f.endsWith('.html')) fs.unlinkSync(path.join(dir, f));
@@ -220,9 +256,9 @@ function emptyDir(dir) {
       publisher: { '@type': 'Organization', name: '비밀 잡화점 The Secret Sundries' }, inLanguage: 'ko-KR',
     }).replace(/</g, '\\u003c');
     const html = fill(T.post, {
-      ROOT: '../', TITLE: esc(p.title), DESC: esc(p.desc), IMAGE: esc(p.image), JSONLD: jsonld, SLUG: p.slug,
+      ROOT: '../', SITE_URL, CANONICAL: `${SITE_URL}/posts/${p.slug}.html`, TITLE: esc(p.title), DESC: esc(p.desc), IMAGE: esc(p.image), JSONLD: jsonld, SLUG: p.slug,
       CATEGORY: esc(p.cat.name), CAT_SLUG: p.cat.slug, NAV_DESKTOP: navDesktop('../', p.cat.slug), NAV_MOBILE: navMobile('../', p.cat.slug),
-      BODY: renderBody(p),
+      BODY: renderBody(p), SEARCH: searchSnippet(posts, '../'),
       TAGS: ['#' + p.cat.name.replace(/\//g, ''), '#에디터추천', '#큐레이션'].map(t => `<span class="px-2.5 py-1 bg-surface rounded text-xs text-ink-secondary border border-border-subtle hover:border-ink-muted cursor-pointer transition-colors">${esc(t)}</span>`).join(''),
       PREV_NEXT: prevNext(posts, i, '../'),
     }, 'post:' + p.slug);
@@ -234,20 +270,25 @@ function emptyDir(dir) {
   for (const c of CATEGORIES) {
     const list = posts.filter(p => p.cat === c);
     const html = fill(T.category, {
-      ROOT: '../', CATEGORY: esc(c.name), CATEGORY_H1: esc(c.name.replace('/', ' / ')), CAT_DESC: esc(c.desc), DESC: esc(c.desc),
+      ROOT: '../', SITE_URL, CANONICAL: `${SITE_URL}/category/${c.slug}.html`, CATEGORY: esc(c.name), CATEGORY_H1: esc(c.name.replace('/', ' / ')), CAT_DESC: esc(c.desc), DESC: esc(c.desc),
       CAT_EN: c.en, COUNT: String(list.length), NAV_DESKTOP: navDesktop('../', c.slug), NAV_MOBILE: navMobile('../', c.slug),
-      CARDS: list.length ? list.map(categoryCard).join('\n') : EMPTY(''),
+      CARDS: list.length ? list.map(categoryCard).join('\n') : EMPTY(''), SEARCH: searchSnippet(posts, '../'),
     }, 'category:' + c.slug);
     fs.writeFileSync(path.join(ROOT, 'category', c.slug + '.html'), html, 'utf8');
   }
 
   // 3) 메인
-  const map = { ROOT: '' };
+  const map = { ROOT: '', SITE_URL, CANONICAL: SITE_URL + '/', SEARCH: searchSnippet(posts, '') };
   for (const c of CATEGORIES) {
     const list = posts.filter(p => p.cat === c);
     map['CARDS:' + c.slug] = list.length ? list.map(indexCard).join('\n') : EMPTY('col-span-full');
   }
   fs.writeFileSync(path.join(ROOT, 'index.html'), fill(T.index, map, 'index'), 'utf8');
+
+  // 4) SEO 파일
+  generateSitemap(posts);
+  generateRss(posts);
+  generateRobots();
 
   console.log(`[done] posts/ ${posts.length}개, category/ ${CATEGORIES.length}개, index.html 생성 완료`);
 })().catch(e => { console.error(e); process.exit(1); });
