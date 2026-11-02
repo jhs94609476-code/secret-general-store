@@ -1,7 +1,7 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko"><head>
 <meta charset="utf-8"><link rel="icon" href="{{ROOT}}favicon.svg" type="image/svg+xml"><meta name="google-site-verification" content="hNvXWg0ehlmQ3dY5uT1fMkwxAk104_EY265xnfmCVfg" /><meta name="naver-site-verification" content="723f9fe7ca4cc0b586b667619a9844a1f90c15b6" /><link rel="canonical" href="{{CANONICAL}}"><meta property="og:url" content="{{CANONICAL}}"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"비밀잡화점","url":"{{SITE_URL}}"}</script>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"><meta name="description" content="일상의 불편을 조용히 해결하는 기능성 도구를 선별해 기록하는 큐레이션 매거진 아카이브, 비밀 잡화점. 화장품/미용, 생활/건강, 식품, 가구/인테리어, 디지털/가전."><meta name="robots" content="index,follow"><meta property="og:type" content="website"><meta property="og:site_name" content="비밀잡화점" /><meta property="og:title" content="비밀 잡화점 (The Secret Sundries Archive)"><meta property="og:description" content="일상의 불편을 조용히 해결하는 기능성 도구를 선별해 기록하는 큐레이션 매거진 아카이브, 비밀 잡화점. 화장품/미용, 생활/건강, 식품, 가구/인테리어, 디지털/가전."><meta name="twitter:card" content="summary_large_image"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><style>html,body{max-width:100%;overflow-x:clip}img{max-width:100%}</style>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"><meta name="description" content="일상의 불편을 조용히 해결하는 기능성 도구를 선별해 기록하는 큐레이션 매거진 아카이브, 비밀 잡화점. 화장품/미용, 생활/건강, 식품, 가구/인테리어, 디지털/가전."><meta name="robots" content="index,follow"><meta property="og:type" content="website"><meta property="og:site_name" content="비밀잡화점" /><meta property="og:title" content="비밀 잡화점 (The Secret Sundries Archive)"><meta property="og:description" content="일상의 불편을 조용히 해결하는 기능성 도구를 선별해 기록하는 큐레이션 매거진 아카이브, 비밀 잡화점. 화장품/미용, 생활/건강, 식품, 가구/인테리어, 디지털/가전."><meta name="twitter:card" content="summary_large_image"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><style>html,body{max-width:100%;overflow-x:clip}img{max-width:100%}.cat-row{display:flex;flex-wrap:nowrap;gap:1.5rem;overflow-x:auto;overflow-y:hidden;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-width:none;-ms-overflow-style:none;padding:.25rem .125rem 1rem}.cat-row::-webkit-scrollbar{display:none}.cat-row>article,.cat-row>p{flex:0 0 260px;flex-shrink:0}.cat-row>article{width:260px}@media(min-width:768px){.cat-row>article{flex-basis:280px;width:280px}}</style><script>document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.cat-row').forEach(function(r){var t=null,raf=0;r.addEventListener('wheel',function(e){if(Math.abs(e.deltaY)<=Math.abs(e.deltaX))return;var max=r.scrollWidth-r.clientWidth;if(max<=0)return;var cur=t===null?r.scrollLeft:t;var nx=Math.max(0,Math.min(max,cur+e.deltaY));if((e.deltaY<0&&cur<=0)||(e.deltaY>0&&cur>=max)){t=null;return}e.preventDefault();t=nx;r.scrollLeft=nx;clearTimeout(raf);raf=setTimeout(function(){t=null},250)},{passive:false});r.addEventListener('touchstart',function(){t=null},{passive:true})})});</script>
 <title>비밀 잡화점 (The Secret Sundries Archive)</title>
 <link href="https://fonts.googleapis.com" rel="preconnect">
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
@@ -160,7 +160,7 @@
 <span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
 </a>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">{{CARDS:cosmetics-beauty}}</div>
+<div class="cat-row">{{CARDS:cosmetics-beauty}}</div>
 </section>
 <section class="flex flex-col gap-6 scroll-mt-28" id="cat-living">
 <div class="flex items-end justify-between border-b border-border-subtle pb-4">
@@ -173,7 +173,7 @@
 <span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
 </a>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">{{CARDS:living-health}}</div>
+<div class="cat-row">{{CARDS:living-health}}</div>
 </section>
 <section class="flex flex-col gap-6 scroll-mt-28" id="cat-food">
 <div class="flex items-end justify-between border-b border-border-subtle pb-4">
@@ -186,7 +186,7 @@
 <span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
 </a>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">{{CARDS:food}}</div>
+<div class="cat-row">{{CARDS:food}}</div>
 </section>
 <section class="flex flex-col gap-6 scroll-mt-28" id="cat-furniture">
 <div class="flex items-end justify-between border-b border-border-subtle pb-4">
@@ -199,7 +199,7 @@
 <span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
 </a>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">{{CARDS:furniture-interior}}</div>
+<div class="cat-row">{{CARDS:furniture-interior}}</div>
 </section>
 <section class="flex flex-col gap-6 scroll-mt-28" id="cat-digital">
 <div class="flex items-end justify-between border-b border-border-subtle pb-4">
@@ -212,7 +212,7 @@
 <span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
 </a>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">{{CARDS:digital-appliances}}</div>
+<div class="cat-row">{{CARDS:digital-appliances}}</div>
 </section>
 </div>
 <figure class="my-6 p-6 md:p-10 bg-parchment-subtle border-l-4 border-primary rounded-r-2xl flex flex-col items-center text-center gap-3 shadow-sm"><blockquote class="serif-title text-xl lg:text-2xl italic text-ink-primary leading-relaxed max-w-3xl">

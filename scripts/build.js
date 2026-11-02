@@ -280,7 +280,8 @@ function emptyDir(dir) {
   // 3) 메인
   const map = { ROOT: '', SITE_URL, CANONICAL: SITE_URL + '/', SEARCH: searchSnippet(posts, '') };
   for (const c of CATEGORIES) {
-    const list = posts.filter(p => p.cat === c);
+    // 시트에 날짜 컬럼이 없어 '아래 행 = 최신'으로 간주, 메인에서만 최신순(왼쪽부터)으로 정렬
+    const list = posts.filter(p => p.cat === c).reverse();
     map['CARDS:' + c.slug] = list.length ? list.map(indexCard).join('\n') : EMPTY('col-span-full');
   }
   fs.writeFileSync(path.join(ROOT, 'index.html'), fill(T.index, map, 'index'), 'utf8');
